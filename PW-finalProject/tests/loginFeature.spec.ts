@@ -1,27 +1,33 @@
-import {test, expect} from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
-test('Add product to cart and check contents then logout', async({page}) => {
-  await page.goto('https://www.saucedemo.com/')
+test('Add product to cart and check contents then logout', async ({ page }) => {
+  await page.goto('https://www.saucedemo.com/');
 
-  await page.locator('[data-test="username"]').fill('standard_user')
-  await page.locator('[data-test="password"]').fill('secret_sauce')
-  await page.locator('[data-test="login-button"]').click()
+  await page.locator('[data-test="username"]').fill('standard_user');
+  await page.locator('[data-test="password"]').fill('secret_sauce');
 
-  await expect(page).toHaveURL(/.*inventory.html/)
+  await page.waitForTimeout(1000);
 
-  await page.locator('[data-test="add-to-cart-sauce-labs-onesie"]').click()
+  await page.screenshot({ path: 'before-login-click.png', fullPage: true });
 
-  await page.locator('.shopping_cart_link').click()
+  const loginBtn = page.locator('[data-test="login-button"]');
+  await loginBtn.scrollIntoViewIfNeeded();
+  await loginBtn.hover();
+  await loginBtn.click();
 
-  await expect(page).toHaveURL(/.cart.html/)
+  await expect(page).toHaveURL(/.*inventory.html/);
 
-  const cartItem = page.locator('.inventory_item_name')
+  await page.locator('[data-test="add-to-cart-sauce-labs-onesie"]').click();
 
-  await expect(cartItem).toContainText('Sauce Labs Onesie')
+  await page.locator('.shopping_cart_link').click();
 
-  await page.locator('#react-burger-menu-btn').click()
-  
-  await page.locator('#logout_sidebar_link').click()
-  
-  await expect(page).toHaveURL('https://www.saucedemo.com/')
-})
+  await expect(page).toHaveURL(/.*cart.html/);
+
+  const cartItem = page.locator('.inventory_item_name');
+  await expect(cartItem).toContainText('Sauce Labs Onesie');
+
+  await page.locator('#react-burger-menu-btn').click();
+  await page.locator('#logout_sidebar_link').click();
+
+  await expect(page).toHaveURL('https://www.saucedemo.com/');
+});
