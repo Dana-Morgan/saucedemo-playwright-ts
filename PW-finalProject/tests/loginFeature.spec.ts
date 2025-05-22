@@ -1,33 +1,57 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
+import { users } from '../utils/testData';
 
-test('Add product to cart and check contents then logout', async ({ page }) => {
-  await page.goto('https://www.saucedemo.com/');
+test.describe.parallel(' Login Feature', () => {
+  test.setTimeout(200000);
 
-  await page.locator('[data-test="username"]').fill('standard_user');
-  await page.locator('[data-test="password"]').fill('secret_sauce');
+  let loginPage: LoginPage;
 
-  await page.waitForTimeout(1000);
+  test.beforeEach(async ({ page }) => {
+    loginPage = new LoginPage(page);
+    await loginPage.goto();
+  });
 
-  await page.screenshot({ path: 'before-login-click.png', fullPage: true });
+  test(' Login with standard_user should succeed', async () => {
+    await loginPage.login(users.standard, users.password);
+    expect(await loginPage.isOnInventoryPage()).toBeTruthy();
 
-  const loginBtn = page.locator('[data-test="login-button"]');
-  await loginBtn.scrollIntoViewIfNeeded();
-  await loginBtn.hover();
-  await loginBtn.click();
+  });
 
-  await expect(page).toHaveURL(/.*inventory.html/);
+  test(' Login with locked_out_user should fail with locked error', async () => {
+    await loginPage.login(users.locked, users.password);
+    await expect(await loginPage.getErrorMessage()).toContainText('locked out');
+  });
 
-  await page.locator('[data-test="add-to-cart-sauce-labs-onesie"]').click();
+  test('Login with problem_user should succeed (but may cause UI issues)', async ({ page }) => {
+    await loginPage.login(users.problem, users.password);
+    expect(await loginPage.isOnInventoryPage()).toBeTruthy();
+    expect(await page.screenshot()).toMatchSnapshot('problem_user_inventory.png');
+  });
 
-  await page.locator('.shopping_cart_link').click();
 
-  await expect(page).toHaveURL(/.*cart.html/);
+  test(' Login with performance_glitch_user should succeed (but might be slow)', async () => {
+    await loginPage.login(users.glitch, users.password);
+    expect(await loginPage.isOnInventoryPage()).toBeTruthy();
+  });
 
-  const cartItem = page.locator('.inventory_item_name');
-  await expect(cartItem).toContainText('Sauce Labs Onesie');
+  test(' Login with visual_user should succeed (but may affect visuals)', async ({ page }) => {
+    loginPage = new LoginPage(page);
 
-  await page.locator('#react-burger-menu-btn').click();
-  await page.locator('#logout_sidebar_link').click();
+    await loginPage.login(users.visual, users.password);
+    expect(await loginPage.isOnInventoryPage()).toBeTruthy();
+    expect(await page.screenshot()).toMatchSnapshot('visual_user_inventory.png', {
+      maxDiffPixelRatio: 0.02,
+    });
+  });
 
-  await expect(page).toHaveURL('https://www.saucedemo.com/');
+  test(' Login with invalid username should fail', async () => {
+    await loginPage.login(users.invalid, users.password);
+    await expect(await loginPage.getErrorMessage()).toContainText('Username and password do not match');
+  });
+
+  test('Login with wrong password should fail', async () => {
+    await loginPage.login(users.standard, users.wrongPassword);
+    await expect(await loginPage.getErrorMessage()).toContainText('Username and password do not match');
+  });
 });
