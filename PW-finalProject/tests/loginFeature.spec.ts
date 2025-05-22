@@ -58,8 +58,14 @@ test.describe.parallel('Login Tests', () => {
     await expect(await loginPage.getErrorMessage()).toContainText('Username and password do not match');
   });
 
-  test.skip('error user login test is skipped due to potential backend issues', async () => {
+  test.skip('shouldnt allow login for error_user – skipped due to backend not rejecting invalid user', async () => {
     await loginPage.login(users.error, users.password);
-    expect(await loginPage.isOnInventoryPage()).toBeTruthy();
+
+    expect(await loginPage.isOnInventoryPage()).toBeFalsy();
+    const errorMessage = await loginPage.getErrorMessage();
+    expect(errorMessage).not.toBe('');
   });
+
+
+
 });
