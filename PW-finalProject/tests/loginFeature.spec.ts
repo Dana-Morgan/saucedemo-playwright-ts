@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
 import { users } from '../utils/testData';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 test.describe.parallel('Login Tests', () => {
 
@@ -12,7 +15,7 @@ test.describe.parallel('Login Tests', () => {
   });
 
 test('should allow login with standard user and save UI snapshot', async ({ page }) => {
-  await loginPage.login(users.standard, users.password);
+  await loginPage.login(process.env.SAUCEDEMO_USER!, process.env.SAUCEDEMO_PASS!);
   expect(await loginPage.isOnInventoryPage()).toBeTruthy();
 });
 

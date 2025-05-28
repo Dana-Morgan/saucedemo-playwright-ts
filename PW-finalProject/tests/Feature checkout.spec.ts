@@ -5,6 +5,9 @@ import { InventoryPage } from '../pages/inventoryPage';
 import { CartPage } from '../pages/cartPage';
 import { CheckoutPage } from '../pages/checkoutPage';
 import { users } from '../utils/testData';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 test.describe('Checkout Feature', () => {
   let context: BrowserContext;
@@ -24,7 +27,7 @@ test.describe('Checkout Feature', () => {
     checkoutPage = new CheckoutPage(page);
 
     await loginPage.goto();
-    await loginPage.login(users.standard, users.password);
+    await loginPage.login(process.env.SAUCEDEMO_USER!, process.env.SAUCEDEMO_PASS!);
     expect(await loginPage.isOnInventoryPage()).toBeTruthy();
   });
 

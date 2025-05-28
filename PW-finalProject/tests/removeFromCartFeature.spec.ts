@@ -2,7 +2,9 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
 import { InventoryPage } from '../pages/inventoryPage';
 import { CartPage } from '../pages/cartPage';
-import { users } from '../utils/testData';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 test.describe('Remove from Cart Feature', () => {
   let loginPage: LoginPage;
@@ -15,7 +17,7 @@ test.describe('Remove from Cart Feature', () => {
     cartPage = new CartPage(page);
 
     await loginPage.goto();
-    await loginPage.login(users.standard, users.password);
+    await loginPage.login(process.env.SAUCEDEMO_USER!, process.env.SAUCEDEMO_PASS!);
     expect(await loginPage.isOnInventoryPage()).toBeTruthy();
   });
 
