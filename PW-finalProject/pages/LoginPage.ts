@@ -1,10 +1,15 @@
 import { Page } from '@playwright/test';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 export class LoginPage {
-  constructor(private page: Page) { }
+  constructor(private page: Page) {}
 
   async goto() {
-    await this.page.goto("https://www.saucedemo.com");
+    const url = process.env.SAUCEDEMO_URL;
+    if (!url) throw new Error("SAUCEDEMO_URL is not defined in the .env file");
+    await this.page.goto(url);
   }
 
   async login(username: string, password: string) {
