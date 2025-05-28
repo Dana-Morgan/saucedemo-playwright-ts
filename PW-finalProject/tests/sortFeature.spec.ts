@@ -18,7 +18,6 @@ test.describe('Sort Feature', () => {
     loginPage = new LoginPage(page);
     inventoryPage = new InventoryPage(page);
 
-    // تسجيل الدخول
     await loginPage.goto();
     await loginPage.login(process.env.SAUCEDEMO_USER!, process.env.SAUCEDEMO_PASS!);
 

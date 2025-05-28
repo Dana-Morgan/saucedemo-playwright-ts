@@ -49,7 +49,7 @@ test('should show error when locked out user tries to log in', async () => {
   });
 
   test('should show error for wrong password', async () => {
-    await loginPage.login(users.standard, users.wrongPassword);
+    await loginPage.login(process.env.SAUCEDEMO_USER!, users.wrongPassword);
     await expect(await loginPage.getErrorMessage()).toContainText('Username and password do not match');
   });
 
